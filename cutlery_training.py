@@ -10,14 +10,14 @@ model = YOLO("yolov8n.pt")
 DATASET_DIR = "bestick_dataset/images"
 os.makedirs(DATASET_DIR, exist_ok=True)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)  # Starta kameran
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    results = model(frame)
+    results = model(frame)  # Gör en prediktion
 
     for result in results:
         for box in result.boxes:
@@ -31,12 +31,21 @@ while True:
                 cv2.imwrite(filename, frame)
                 print(f"✅ Sparade {filename}")
 
+                # Rita en rektangel runt besticket
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    # Visa kameraflödet med markerade bestick
+    cv2.imshow("YOLO - Bestickidentifiering", frame)
+
+    # Avsluta programmet genom att trycka på "q"
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
 cv2.destroyAllWindows()
-
 
 
 '''import cv2
