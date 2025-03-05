@@ -3,7 +3,7 @@ import random
 import shutil
 
 # Stig till din dataset-mapp
-dataset_path = "/home/pi/Desktop/CutlerySorter/dataset"  # Ändra till rätt sökväg
+dataset_path = "/Users/aminnazari/Desktop/Python/Kamera/bestick_dataset"  # Ändra till rätt sökväg
 images_path = os.path.join(dataset_path, "images")
 labels_path = os.path.join(dataset_path, "labels")
 
