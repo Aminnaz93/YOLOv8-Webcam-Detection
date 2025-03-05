@@ -14,8 +14,8 @@ os.makedirs(LABEL_DIR, exist_ok=True)
 
 # ✅ Skapa bestick_dataset.yaml automatiskt
 yaml_file_path = os.path.join(DATASET_DIR, "bestick_dataset.yaml")
-yaml_content = f"""train: {IMAGE_DIR}  # Initialt pekar på hela bildmappen
-val: {IMAGE_DIR}  # Initialt pekar på hela bildmappen
+yaml_content = f"""train: {IMAGE_DIR}/train
+val: {IMAGE_DIR}/val
 
 nc: 9  # Antal klasser
 
