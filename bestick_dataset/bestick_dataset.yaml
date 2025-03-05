@@ -1,0 +1,6 @@
+train: bestick_dataset/images  # Initialt pekar på hela bildmappen
+val: bestick_dataset/images  # Initialt pekar på hela bildmappen
+
+nc: 9  # Antal klasser
+
+names: ["fork", "knife", "spoon", "sas_fork", "sas_knife", "sas_spoon", "emirates_fork", "emirates_knife", "emirates_spoon"]

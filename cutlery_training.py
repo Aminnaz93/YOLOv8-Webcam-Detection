@@ -4,30 +4,28 @@ import time
 import subprocess
 from ultralytics import YOLO
 
-# ✅ Skapa bestick_dataset.yaml automatiskt om den saknas
-yaml_content = """train: bestick_dataset/images/train  # Sökväg till träningsbilder
-val: bestick_dataset/images/val      # Sökväg till valideringsbilder
+# ✅ Skapa dataset-mappen om den inte finns
+DATASET_DIR = "bestick_dataset"
+IMAGE_DIR = os.path.join(DATASET_DIR, "images")
+LABEL_DIR = os.path.join(DATASET_DIR, "labels")
+os.makedirs(DATASET_DIR, exist_ok=True)
+os.makedirs(IMAGE_DIR, exist_ok=True)
+os.makedirs(LABEL_DIR, exist_ok=True)
 
-nc: 9  # Antal klasser (3 vanliga + 3 SAS + 3 Emirates)
+# ✅ Skapa bestick_dataset.yaml automatiskt
+yaml_file_path = os.path.join(DATASET_DIR, "bestick_dataset.yaml")
+yaml_content = f"""train: {IMAGE_DIR}  # Initialt pekar på hela bildmappen
+val: {IMAGE_DIR}  # Initialt pekar på hela bildmappen
+
+nc: 9  # Antal klasser
 
 names: ["fork", "knife", "spoon", "sas_fork", "sas_knife", "sas_spoon", "emirates_fork", "emirates_knife", "emirates_spoon"]
 """
 
-yaml_file_path = "bestick_dataset.yaml"
 if not os.path.exists(yaml_file_path):
     with open(yaml_file_path, "w") as f:
         f.write(yaml_content)
     print(f"✅ {yaml_file_path} skapades automatiskt!")
-
-# ✅ Ladda YOLO-modellen
-model = YOLO("yolov8n.pt")
-
-# ✅ Skapa mappar för dataset (bilder + annoteringar)
-DATASET_DIR = "bestick_dataset"
-IMAGE_DIR = f"{DATASET_DIR}/images"
-LABEL_DIR = f"{DATASET_DIR}/labels"
-os.makedirs(IMAGE_DIR, exist_ok=True)
-os.makedirs(LABEL_DIR, exist_ok=True)
 
 # ✅ Klassnummer för vanliga bestick, SAS och Emirates
 BESTICK_CLASSES = {
@@ -41,8 +39,11 @@ for category in BESTICK_CLASSES.values():
     os.makedirs(f"{IMAGE_DIR}/{category}", exist_ok=True)
     os.makedirs(f"{LABEL_DIR}/{category}", exist_ok=True)
 
+# ✅ Starta kameran
 cap = cv2.VideoCapture(0)
-selected_airline = None  # Standard: Ingen flygbolagsklassning
+model = YOLO("yolov8n.pt")
+
+selected_airline = None  # Lagrar valt flygbolag (SAS, Emirates eller None)
 
 while True:
     ret, frame = cap.read()
@@ -57,35 +58,32 @@ while True:
             cls = int(box.cls[0])
             conf = box.conf[0].item()
 
-            if cls in [42, 43, 44]:  # Endast bestick
+            if cls in [42, 43, 44]:  # Om det är ett bestick
                 bestick_identifierat = True
-                label = BESTICK_CLASSES[cls]
+                label = BESTICK_CLASSES[cls]  # Hämta besticknamn
 
-                # ✅ Ändra klass beroende på flygbolag
+                # ✅ Om flygbolag är valt, ändra klassnummer
                 if selected_airline == "sas":
-                    new_cls = cls + 58  # Ex: fork (42) → sas_fork (100)
+                    new_cls = cls + 58
                     label = BESTICK_CLASSES[new_cls]
                 elif selected_airline == "emirates":
-                    new_cls = cls + 158  # Ex: fork (42) → emirates_fork (200)
+                    new_cls = cls + 158
                     label = BESTICK_CLASSES[new_cls]
                 else:
-                    new_cls = cls  # Behåll vanlig bestickklass
+                    new_cls = cls
 
-                # ✅ Skapa filnamn
+                # ✅ Spara bild
                 timestamp = str(int(time.time()))
                 img_filename = f"{IMAGE_DIR}/{label}/{label}_{timestamp}.jpg"
                 label_filename = f"{LABEL_DIR}/{label}/{label}_{timestamp}.txt"
-
-                # ✅ Spara bilden
                 cv2.imwrite(img_filename, frame)
 
-                # ✅ Normalisera bounding box
+                # ✅ Spara annoteringsfil
                 x_center = (box.xyxy[0][0] + box.xyxy[0][2]) / (2 * frame.shape[1])
                 y_center = (box.xyxy[0][1] + box.xyxy[0][3]) / (2 * frame.shape[0])
                 width = (box.xyxy[0][2] - box.xyxy[0][0]) / frame.shape[1]
                 height = (box.xyxy[0][3] - box.xyxy[0][1]) / frame.shape[0]
 
-                # ✅ Spara annoteringsfil
                 with open(label_filename, "w") as f:
                     f.write(f"{new_cls} {x_center} {y_center} {width} {height}\n")
 
@@ -100,7 +98,7 @@ while True:
     # ✅ Visa kameraflödet
     cv2.imshow("YOLO - Bestickidentifiering", frame)
 
-    # 📌 Tangenter för funktioner
+    # ✅ Tangenter för val
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
@@ -113,12 +111,9 @@ while True:
     elif key == ord('n'):
         selected_airline = None
         print("⚪ Vanliga bestick valda!")
-    elif key == ord('t'):  # Tryck 't' för att starta träningen
-        print("🚀 Startar träning...")
-        cap.release()
-        cv2.destroyAllWindows()
-        subprocess.run(["python3", "train_model.py"])
-        break
+    elif key == ord('t'):
+        print("🚀 Startar dataset-splitting och träning...")
+        subprocess.run(["python", "split_and_train.py"])
 
 cap.release()
 cv2.destroyAllWindows()
