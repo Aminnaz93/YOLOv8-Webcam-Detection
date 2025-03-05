@@ -113,7 +113,7 @@ while True:
         print("⚪ Vanliga bestick valda!")
     elif key == ord('t'):
         print("🚀 Startar dataset-splitting och träning...")
-        subprocess.run(["python", "split_and_train.py"])
+        subprocess.run(["python3", "train_model.py"])
 
 cap.release()
 cv2.destroyAllWindows()
