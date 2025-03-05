@@ -37,5 +37,5 @@ print("✅ Datasetet har delats in i 80% träning och 20% validering!")
 
 # ✅ Starta YOLO-träning och fortsätt träningen med resume
 print("🚀 Startar YOLO-träning...")
-subprocess.run(["yolo", "train", "model=yolov8n.pt", "data=bestick_dataset/bestick_dataset.yaml", "epochs=50", "imgsz=640", "--resume"])
+subprocess.run(["yolo", "train", "model=yolov8n.pt", "data=bestick_dataset/bestick_dataset.yaml", "epochs=50", "imgsz=640", "resume=True"])
 print("🎉 Träningen är klar!")
