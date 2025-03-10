@@ -124,36 +124,45 @@ cv2.destroyAllWindows()  # ✅ Stäng av kameran
 print(f"✅ training_started = {training_started}")
 
 if training_started:
-    # ✅ 1. SPLITTA DATASETET
+# ✅ 1. SPLITTA DATASETET
     print("📂 Delar upp datasetet i träning och validering...")
 
-    train_path = os.path.join(IMAGE_DIR, "train")
-    val_path = os.path.join(IMAGE_DIR, "val")
-    os.makedirs(train_path, exist_ok=True)
-    os.makedirs(val_path, exist_ok=True)
+train_path = os.path.join(IMAGE_DIR, "train")
+val_path = os.path.join(IMAGE_DIR, "val")
+os.makedirs(train_path, exist_ok=True)
+os.makedirs(val_path, exist_ok=True)
 
-    train_labels_path = os.path.join(LABEL_DIR, "train")
-    val_labels_path = os.path.join(LABEL_DIR, "val")
-    os.makedirs(train_labels_path, exist_ok=True)
-    os.makedirs(val_labels_path, exist_ok=True)
+train_labels_path = os.path.join(LABEL_DIR, "train")
+val_labels_path = os.path.join(LABEL_DIR, "val")
+os.makedirs(train_labels_path, exist_ok=True)
+os.makedirs(val_labels_path, exist_ok=True)
 
-    # ✅ Lista bilder och blanda
-    image_files = [f for f in os.listdir(IMAGE_DIR) if f.endswith((".jpg", ".png"))]
-    random.shuffle(image_files)
+# ✅ Hämta bilder från ALLA undermappar
+image_files = []
+for root, _, files in os.walk(IMAGE_DIR):  # Gå igenom alla undermappar
+    for file in files:
+        if file.endswith((".jpg", ".png")):
+            image_files.append(os.path.join(root, file))  # Lägg till full sökväg
 
-    # ✅ 80% träning, 20% validering
-    split_index = int(0.8 * len(image_files))
-    train_files, val_files = image_files[:split_index], image_files[split_index:]
+# Kontrollera om det finns bilder
+if not image_files:
+    print("❌ Inga bilder hittades i datasetet! Kontrollera sökvägen.")
+    exit()
 
-    # ✅ Flytta filer
-    for file in train_files + val_files:
-        src_img = os.path.join(IMAGE_DIR, file)
-        dest_folder = "train" if file in train_files else "val"
-        shutil.move(src_img, os.path.join(IMAGE_DIR, dest_folder, file))
+random.shuffle(image_files)
 
-        label_file = file.replace(".jpg", ".txt").replace(".png", ".txt")
-        if os.path.exists(os.path.join(LABEL_DIR, label_file)):
-            shutil.move(os.path.join(LABEL_DIR, label_file), os.path.join(LABEL_DIR, dest_folder, label_file))
+# ✅ 80% träning, 20% validering
+split_index = int(0.8 * len(image_files))
+train_files, val_files = image_files[:split_index], image_files[split_index:]
+
+# ✅ Flytta filer till rätt mappar
+for file in train_files + val_files:
+    dest_folder = "train" if file in train_files else "val"
+    shutil.move(file, os.path.join(IMAGE_DIR, dest_folder, os.path.basename(file)))
+
+    label_file = file.replace(".jpg", ".txt").replace(".png", ".txt")
+    if os.path.exists(label_file):
+        shutil.move(label_file, os.path.join(LABEL_DIR, dest_folder, os.path.basename(label_file)))
 
     print("✅ Datasetet har delats in i 80% träning och 20% validering!")
 
