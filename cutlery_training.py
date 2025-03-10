@@ -121,6 +121,7 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()  # ✅ Stäng av kameran
+print(f"✅ training_started = {training_started}")
 
 if training_started:
     # ✅ 1. SPLITTA DATASETET
@@ -164,6 +165,7 @@ if training_started:
         f"data={yaml_file_path}",
         "epochs=50",
         "imgsz=640",
+        "device=cpu",
         "--resume"
     ])
     print("🎉 Träningen är klar!")
