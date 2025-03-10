@@ -1,5 +1,5 @@
-train: /Users/aminnazari/Desktop/Python/Kamera/bestick_dataset/labels/train  # Initialt pekar på hela bildmappen
-val: /Users/aminnazari/Desktop/Python/Kamera/bestick_dataset/labels/val  # Initialt pekar på hela bildmappen
+train: /Users/aminnazari/Desktop/Python/Kamera/bestick_dataset/images/train  
+val: /Users/aminnazari/Desktop/Python/Kamera/bestick_dataset/images/val  
 
 nc: 9  # Antal klasser
 
