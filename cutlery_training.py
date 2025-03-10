@@ -1,6 +1,8 @@
 import cv2
 import os
 import time
+import random
+import shutil
 import subprocess
 from ultralytics import YOLO
 
@@ -44,6 +46,7 @@ cap = cv2.VideoCapture(0)
 model = YOLO("yolov8n.pt")
 
 selected_airline = None  # Lagrar valt flygbolag (SAS, Emirates eller None)
+training_started = False  # Flagga för att stoppa kameran vid träning
 
 while True:
     ret, frame = cap.read()
@@ -112,8 +115,55 @@ while True:
         selected_airline = None
         print("⚪ Vanliga bestick valda!")
     elif key == ord('t'):
-        print("🚀 Startar dataset-splitting och träning...")
-        subprocess.run(["python3", "train_model.py"])
+        print("🚀 Stänger av kameran och startar dataset-splitting och träning...")
+        training_started = True
+        break  # Avbryter loopen för att stänga av kameran
 
 cap.release()
-cv2.destroyAllWindows()
+cv2.destroyAllWindows()  # ✅ Stäng av kameran
+
+if training_started:
+    # ✅ 1. SPLITTA DATASETET
+    print("📂 Delar upp datasetet i träning och validering...")
+
+    train_path = os.path.join(IMAGE_DIR, "train")
+    val_path = os.path.join(IMAGE_DIR, "val")
+    os.makedirs(train_path, exist_ok=True)
+    os.makedirs(val_path, exist_ok=True)
+
+    train_labels_path = os.path.join(LABEL_DIR, "train")
+    val_labels_path = os.path.join(LABEL_DIR, "val")
+    os.makedirs(train_labels_path, exist_ok=True)
+    os.makedirs(val_labels_path, exist_ok=True)
+
+    # ✅ Lista bilder och blanda
+    image_files = [f for f in os.listdir(IMAGE_DIR) if f.endswith((".jpg", ".png"))]
+    random.shuffle(image_files)
+
+    # ✅ 80% träning, 20% validering
+    split_index = int(0.8 * len(image_files))
+    train_files, val_files = image_files[:split_index], image_files[split_index:]
+
+    # ✅ Flytta filer
+    for file in train_files + val_files:
+        src_img = os.path.join(IMAGE_DIR, file)
+        dest_folder = "train" if file in train_files else "val"
+        shutil.move(src_img, os.path.join(IMAGE_DIR, dest_folder, file))
+
+        label_file = file.replace(".jpg", ".txt").replace(".png", ".txt")
+        if os.path.exists(os.path.join(LABEL_DIR, label_file)):
+            shutil.move(os.path.join(LABEL_DIR, label_file), os.path.join(LABEL_DIR, dest_folder, label_file))
+
+    print("✅ Datasetet har delats in i 80% träning och 20% validering!")
+
+    # ✅ 2. STARTA YOLO-TRÄNINGEN
+    print("🚀 Startar YOLO-träning...")
+    subprocess.run([
+        "yolo", "train",
+        "model=yolov8n.pt",
+        f"data={yaml_file_path}",
+        "epochs=50",
+        "imgsz=640",
+        "--resume"
+    ])
+    print("🎉 Träningen är klar!")
