@@ -28,7 +28,7 @@ names: ["fork", "knife", "spoon", "sas_fork", "sas_knife", "sas_spoon", "emirate
 if not os.path.exists(yaml_file_path):
     with open(yaml_file_path, "w") as f:
         f.write(yaml_content)
-    print(f"✅ {yaml_file_path} skapades automatiskt!")
+    print(f"{yaml_file_path} skapades automatiskt!")
 
 # Klassnummer för vanliga bestick, SAS och Emirates
 BESTICK_CLASSES = {
