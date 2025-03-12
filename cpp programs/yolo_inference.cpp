@@ -7,9 +7,9 @@ int main() {
     std::string modelPath = "/Users/aminnazari/Desktop/Python/Kamera/yolov8n.onnx";  // Ändra till din ONNX-fil
     cv::dnn::Net net = cv::dnn::readNetFromONNX(modelPath);
 
-    // 🔥 Använd GPU om tillgänglig (annars CPU)
-    net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-    net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
+    // 🚀 Använd CPU istället för CUDA
+    net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+    net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
 
     // 🖥️ Starta webbkameran
     cv::VideoCapture cap(0);  // 0 = första kameran
