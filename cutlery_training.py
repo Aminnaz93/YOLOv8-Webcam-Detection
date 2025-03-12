@@ -163,11 +163,11 @@ if training_started:
     print("Startar YOLO-träning...")
     subprocess.run([
         "yolo", "train",
-        "model=yolov8n.pt",
+        "model=/Users/aminnazari/Desktop/Python/Kamera/runs/detect/train/weights/best.pt",
         f"data={yaml_file_path}",
         "epochs=50",
         "imgsz=640",
         "device=cpu",
         "pretrained=True"
     ])
-    print("🎉 Träningen är klar!")
+    print("🎉 Träningen är klar!") 
