@@ -2,7 +2,8 @@ from ultralytics import YOLO
 import cv2
 
 # Ladda den tränade modellen
-model = YOLO("/Users/aminnazari/Desktop/Python/Kamera/runs/detect/train4/weights/best.pt")
+#model = YOLO("/Users/aminnazari/Desktop/Python/Kamera/runs/detect/train4/weights/best.pt")
+model = YOLO("yolov8n_ncnn_model")
 
 # Starta webbkameran
 cap = cv2.VideoCapture(0)  # 0 = Första kameran
