@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import cv2
 
+
 # Ladda den tränade modellen
 #model = YOLO("/Users/aminnazari/Desktop/Python/Kamera/runs/detect/train4/weights/best.pt")
 #model = YOLO("yolov8n.pt")
