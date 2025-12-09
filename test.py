@@ -3,8 +3,8 @@
 
 from ultralytics import YOLO
 
-#model = YOLO("yolov8n.pt")
-model = YOLO("/Users/aminnazari/Desktop/Python/Kamera/yolov8n_ncnn_model")
+model = YOLO("yolov8n.pt")
+#model = YOLO("/Users/aminnazari/Desktop/Python/Kamera/yolov8n_ncnn_model")
              
 result = model("/Users/aminnazari/Desktop/Python/Kamera/test_image.jpg" , save=True)
 
